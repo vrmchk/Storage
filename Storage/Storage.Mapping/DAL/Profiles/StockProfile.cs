@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Storage.BLL.Requests.Stock;
 using Storage.BLL.Responses.Stock;
 using Storage.DAL.Entities;
 
@@ -9,5 +10,7 @@ public class StockProfile : Profile
     public StockProfile()
     {
         CreateMap<Stock, StockResponse>();
+        CreateMap<CreateStockRequest, Stock>();
+        CreateMap<UpdateStockRequest, Stock>();
     }
 }
