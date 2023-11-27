@@ -1,6 +1,6 @@
 namespace Storage.Common.Models.DTOs.Stock;
 
-public class CreateStockDTO
+public class CreateStocksBatchDTO
 {
     public Guid ProductId { get; set; }
 }

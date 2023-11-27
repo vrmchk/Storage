@@ -11,13 +11,13 @@ using E = Storage.DAL.Entities;
 
 namespace Storage.BLL.RequestHandlers.Stock;
 
-public class CreateStockRequestHandler : RequestHandlerBase<CreateStockRequest, StockResponse>
+public class CreateStockRequestHandler : RequestHandlerBase<CreateStocksBatchRequest, List<StockResponse>>
 {
     private readonly IRepository<E.Stock> _repository;
     private readonly IMapper _mapper;
     private readonly IMediator _mediator;
 
-    public CreateStockRequestHandler(IValidator<CreateStockRequest> validator,
+    public CreateStockRequestHandler(IValidator<CreateStocksBatchRequest> validator,
         IRepository<E.Stock> repository,
         IMapper mapper,
         IMediator mediator) : base(validator)
@@ -27,15 +27,18 @@ public class CreateStockRequestHandler : RequestHandlerBase<CreateStockRequest, 
         _mediator = mediator;
     }
 
-    protected override async Task<ErrorOr<StockResponse>> HandleInternal(CreateStockRequest request,
+    protected override async Task<ErrorOr<List<StockResponse>>> HandleInternal(CreateStocksBatchRequest request,
         CancellationToken cancellationToken)
     {
-        var stock = _mapper.Map<E.Stock>(request);
+        var stocks = Enumerable.Range(0, request.Quantity).Select(_ => new E.Stock
+        {
+            ProductId = request.ProductId
+        });
 
-        await _repository.InsertAsync(stock);
+        await _repository.InsertManyAsync(stocks);
 
-        await _mediator.Publish(new StockAddedNotification { ProductId = request.ProductId }, cancellationToken);
+        await _mediator.Publish(new StocksAddedNotification { ProductId = request.ProductId }, cancellationToken);
 
-        return _mapper.Map<StockResponse>(stock);
+        return _mapper.Map<List<StockResponse>>(stocks);
     }
 }

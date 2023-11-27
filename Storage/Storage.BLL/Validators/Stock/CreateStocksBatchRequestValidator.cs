@@ -6,7 +6,7 @@ using E = Storage.DAL.Entities;
 
 namespace Storage.BLL.Validators.Stock;
 
-public class CreateStockRequestValidator : AbstractValidator<CreateStockRequest>
+public class CreateStockRequestValidator : AbstractValidator<CreateStocksBatchRequest>
 {
     public CreateStockRequestValidator(IRepository<E.Product> productRepository)
     {
