@@ -10,6 +10,5 @@ public class StockProfile : Profile
     public StockProfile()
     {
         CreateMap<Stock, StockResponse>();
-        CreateMap<UpdateStockRequest, Stock>();
     }
 }

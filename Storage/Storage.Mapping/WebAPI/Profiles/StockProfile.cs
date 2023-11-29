@@ -11,6 +11,5 @@ public class StockProfile : Profile
     {
         CreateMap<StockResponse, StockDTO>();
         CreateMap<CreateStocksBatchDTO, CreateStocksBatchRequest>();
-        CreateMap<UpdateStockDTO, UpdateStockRequest>();
     }
 }

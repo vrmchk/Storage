@@ -51,16 +51,6 @@ public class StockController : ControllerBase
         return _mapper.ToActionResult<List<StockResponse>, List<StockDTO>>(result);
     }
 
-    [HttpPut("/stocks/{id}")]
-    public async Task<IActionResult> UpdateStock(Guid id, [FromBody] UpdateStockDTO dto)
-    {
-        if (id != dto.Id)
-            return BadRequest(new ErrorDTO { Errors = new[] { "Ids have to be the same in route and body" } });
-
-        var result = await _mediator.Send(_mapper.Map<UpdateStockRequest>(dto));
-        return _mapper.ToActionResult<StockResponse, StockDTO>(result);
-    }
-
     [HttpDelete("/stocks/{id}")]
     public async Task<IActionResult> DeleteStock(Guid id)
     {
