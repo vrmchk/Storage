@@ -11,13 +11,13 @@ using E = Storage.DAL.Entities;
 
 namespace Storage.BLL.RequestHandlers.Stock;
 
-public class CreateStockRequestHandler : RequestHandlerBase<CreateStocksBatchRequest, List<StockResponse>>
+public class CreateStocksBatchRequestHandler : RequestHandlerBase<CreateStocksBatchRequest, List<StockResponse>>
 {
     private readonly IRepository<E.Stock> _repository;
     private readonly IMapper _mapper;
     private readonly IMediator _mediator;
 
-    public CreateStockRequestHandler(IValidator<CreateStocksBatchRequest> validator,
+    public CreateStocksBatchRequestHandler(IValidator<CreateStocksBatchRequest> validator,
         IRepository<E.Stock> repository,
         IMapper mapper,
         IMediator mediator) : base(validator)
@@ -33,11 +33,12 @@ public class CreateStockRequestHandler : RequestHandlerBase<CreateStocksBatchReq
         var stocks = Enumerable.Range(0, request.Quantity).Select(_ => new E.Stock
         {
             ProductId = request.ProductId
-        });
+        }).ToList();
 
         await _repository.InsertManyAsync(stocks);
 
-        await _mediator.Publish(new StocksAddedNotification { ProductId = request.ProductId }, cancellationToken);
+        var notification = new StocksAddedNotification { ProductId = request.ProductId };
+        await _mediator.Publish(notification, cancellationToken);
 
         return _mapper.Map<List<StockResponse>>(stocks);
     }

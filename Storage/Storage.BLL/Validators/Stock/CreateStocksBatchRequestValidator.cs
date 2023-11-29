@@ -6,9 +6,9 @@ using E = Storage.DAL.Entities;
 
 namespace Storage.BLL.Validators.Stock;
 
-public class CreateStockRequestValidator : AbstractValidator<CreateStocksBatchRequest>
+public class CreateStocksBatchRequestValidator : AbstractValidator<CreateStocksBatchRequest>
 {
-    public CreateStockRequestValidator(IRepository<E.Product> productRepository)
+    public CreateStocksBatchRequestValidator(IRepository<E.Product> productRepository)
     {
         RuleFor(x => x.ProductId)
             .NotEmpty()

@@ -10,7 +10,7 @@ public class StockProfile : Profile
     public StockProfile()
     {
         CreateMap<StockResponse, StockDTO>();
-        CreateMap<CreateStockDTO, CreateStockRequest>();
+        CreateMap<CreateStocksBatchDTO, CreateStocksBatchRequest>();
         CreateMap<UpdateStockDTO, UpdateStockRequest>();
     }
 }

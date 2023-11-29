@@ -13,7 +13,6 @@ public class Order : BaseEntity<Guid>
     public OrderStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
     public decimal Amount { get; set; }
-
     public Guid UserId { get; set; }
 
     public User User { get; set; } = null!;

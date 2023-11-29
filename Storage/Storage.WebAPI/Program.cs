@@ -1,4 +1,5 @@
 using System.Text;
+using FluentEmail.MailKitSmtp;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -12,14 +13,22 @@ using Storage.DAL.Contexts;
 using Storage.DAL.Entities;
 using Storage.DAL.Repositories;
 using Storage.DAL.Repositories.Interfaces;
+using Storage.Email.Services;
+using Storage.Email.Services.Interfaces;
 using Storage.Mapping.WebAPI.Profiles;
+using Storage.WebAPI.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 //Configs
 var jwtConfig = new JwtConfig();
-builder.Configuration.Bind("JwtConfig", jwtConfig);
+builder.Configuration.Bind("Jwt", jwtConfig);
 builder.Services.AddSingleton(jwtConfig);
+
+var emailConfig = new EmailConfig();
+builder.Configuration.Bind("Email", emailConfig);
+emailConfig.TemplatesPath = emailConfig.TemplatesPath.ToAbsolutePath();
+builder.Services.AddSingleton(emailConfig);
 
 //Services
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -30,6 +39,20 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<SignUpRequestHandler>());
 builder.Services.AddAutoMapper(typeof(AuthProfile));
 builder.Services.AddValidatorsFromAssemblyContaining<SignUpRequestValidator>();
+
+//Email
+builder.Services.AddFluentEmail(emailConfig.DefaultEmail)
+    .AddRazorRenderer(emailConfig.TemplatesPath)
+    .AddMailKitSender(new SmtpClientOptions {
+        Server = emailConfig.SmtpServer,
+        Port = emailConfig.SmtpPort,
+        User = emailConfig.DefaultEmail,
+        Password = emailConfig.Password,
+        UseSsl = false,
+        RequiresAuthentication = true,
+    });
+
+builder.Services.AddScoped<IEmailSender, EmailSender>();
 
 //Auth
 builder.Services.AddIdentity<User, IdentityRole<Guid>>()
@@ -103,5 +126,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+await app.SetupRolesAsync();
 
 app.Run();

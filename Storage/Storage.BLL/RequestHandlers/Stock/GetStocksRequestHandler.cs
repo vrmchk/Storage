@@ -26,7 +26,15 @@ public class GetStocksRequestHandler : RequestHandlerBase<GetStocksRequest, List
     protected override async Task<ErrorOr<List<StockResponse>>> HandleInternal(GetStocksRequest request,
         CancellationToken cancellationToken)
     {
-        var stocks = await _repository.Where(s => s.ProductId == request.ProductId).ToListAsync(cancellationToken);
-        return _mapper.Map<List<StockResponse>>(stocks);
+        var queryable = _repository.Where(s => s.ProductId == request.ProductId);
+
+        if (request.IsAvailable != null)
+        {
+            queryable = request.IsAvailable.Value
+                ? queryable.Where(s => s.OrderSelectionId == null)
+                : queryable.Where(s => s.OrderSelectionId != null);
+        }
+
+        return _mapper.Map<List<StockResponse>>(await queryable.ToListAsync(cancellationToken));
     }
 }

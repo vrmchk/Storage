@@ -25,7 +25,14 @@ public static class ErrorOrExtensions
     public static IActionResult ToActionResult(this ErrorOr<Deleted> errorOr)
     {
         return errorOr.Match<IActionResult>(
-            value => new NoContentResult(),
+            _ => new NoContentResult(),
+            errors => new BadRequestObjectResult(errors.ToErrorDTO()));
+    }
+
+    public static IActionResult ToActionResult(this ErrorOr<Success> errorOr)
+    {
+        return errorOr.Match<IActionResult>(
+            _ => new NoContentResult(),
             errors => new BadRequestObjectResult(errors.ToErrorDTO()));
     }
 }

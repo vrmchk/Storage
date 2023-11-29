@@ -8,7 +8,7 @@ public class SignUpRequestValidator : AbstractValidator<SignUpRequest>
 {
     public SignUpRequestValidator()
     {
-        RuleFor(x => x.Name)
+        RuleFor(x => x.UserName)
             .NotEmpty()
             .MinimumLength(2)
             .MaximumLength(32);

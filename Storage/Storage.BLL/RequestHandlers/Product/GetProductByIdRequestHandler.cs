@@ -27,7 +27,6 @@ public class GetProductByIdRequestHandler : RequestHandlerBase<GetProductByIdReq
         CancellationToken cancellationToken)
     {
         var product = await _repository
-            .Include(p => p.ProductReservations)
             .Include(p => p.Stocks)
             .SingleOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
 

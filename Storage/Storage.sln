@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Storage.WebAPI", "Storage.W
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Storage.Mapping", "Storage.Mapping\Storage.Mapping.csproj", "{CE11A390-E89F-4B7E-9AB4-E6C30F003AB3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Storage.Email", "Storage.Email\Storage.Email.csproj", "{C35FE10B-C36E-4A9B-B0A3-17BE5CD77DDD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{CE11A390-E89F-4B7E-9AB4-E6C30F003AB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE11A390-E89F-4B7E-9AB4-E6C30F003AB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CE11A390-E89F-4B7E-9AB4-E6C30F003AB3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C35FE10B-C36E-4A9B-B0A3-17BE5CD77DDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C35FE10B-C36E-4A9B-B0A3-17BE5CD77DDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C35FE10B-C36E-4A9B-B0A3-17BE5CD77DDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C35FE10B-C36E-4A9B-B0A3-17BE5CD77DDD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Storage.BLL.Extensions;
 using Storage.BLL.Requests.Product;
 using Storage.BLL.Responses.Product;
+using Storage.Common.Constants;
 using Storage.Common.Enums;
 using Storage.Common.Models.DTOs;
 using Storage.Common.Models.DTOs.Product;
@@ -13,6 +16,7 @@ namespace Storage.WebAPI.Controllers;
 
 [ApiController]
 [Route("api/products")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ProductController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -25,22 +29,24 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = $"{ApplicationRoles.User},{ApplicationRoles.Manager}")]
     public async Task<IActionResult> GetProducts(
         [FromQuery] string? productType = null,
         [FromQuery] string? name = null,
-        [FromQuery] bool shouldBeAvailable = false)
+        [FromQuery] bool? isAvailable = null)
     {
         var result = await _mediator.Send(new GetProductsRequest
         {
             ProductType = productType?.ToEnum<ProductType>() ?? ProductType.None,
             Name = name,
-            ShouldBeAvailable = shouldBeAvailable
+            IsAvailable = isAvailable
         });
 
         return _mapper.ToActionResult<List<ProductResponse>, List<ProductDTO>>(result);
     }
 
     [HttpGet("{id}")]
+    [Authorize(Roles = $"{ApplicationRoles.User},{ApplicationRoles.Manager}")]
     public async Task<IActionResult> GetProductById(Guid id)
     {
         var result = await _mediator.Send(new GetProductByIdRequest { Id = id });
@@ -48,6 +54,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = ApplicationRoles.Manager)]
     public async Task<IActionResult> AddProduct([FromBody] CreateProductDTO dto)
     {
         var result = await _mediator.Send(_mapper.Map<CreateProductRequest>(dto));
@@ -58,17 +65,18 @@ public class ProductController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = ApplicationRoles.Manager)]
     public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] UpdateProductDTO dto)
     {
-        if (id != dto.Id)
-            return BadRequest(new ErrorDTO { Errors = new[] { "Ids have to be the same in route and body" } });
-
-        var result = await _mediator.Send(_mapper.Map<UpdateProductRequest>(dto));
+        var request = _mapper.Map<UpdateProductRequest>(dto);
+        request.ProductId = id;
+        var result = await _mediator.Send(request);
         return _mapper.ToActionResult<ProductResponse, ProductDTO>(result);
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> UpdateProduct(Guid id)
+    [Authorize(Roles = ApplicationRoles.Manager)]
+    public async Task<IActionResult> DeleteProduct(Guid id)
     {
         var result = await _mediator.Send(new DeleteProductRequest { Id = id });
         return result.ToActionResult();

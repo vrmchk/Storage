@@ -7,7 +7,7 @@ public class UpdateProductRequestValidator : AbstractValidator<UpdateProductRequ
 {
     public UpdateProductRequestValidator()
     {
-        RuleFor(x => x.Id)
+        RuleFor(x => x.ProductId)
             .NotEmpty();
 
         RuleFor(x => x.Name)

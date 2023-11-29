@@ -1,0 +1,49 @@
+﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Storage.BLL.Notifications;
+using Storage.Common.Enums;
+using Storage.DAL.Repositories.Interfaces;
+using E = Storage.DAL.Entities;
+
+namespace Storage.BLL.NotificationHandlers;
+
+public class OrderCreatedNotificationHandler : INotificationHandler<OrderCreatedNotification>
+{
+    private readonly IRepository<E.Order> _orderRepository;
+    private readonly IRepository<E.OrderSelection> _orderSelectionRepository;
+
+    public OrderCreatedNotificationHandler(IRepository<E.Order> orderRepository,
+        IRepository<E.OrderSelection> orderSelectionRepository)
+    {
+        _orderRepository = orderRepository;
+        _orderSelectionRepository = orderSelectionRepository;
+    }
+
+    public async Task Handle(OrderCreatedNotification notification, CancellationToken cancellationToken)
+    {
+        var order = await _orderRepository
+            .Include(o => o.OrderSelections)
+            .ThenInclude(os => os.Product)
+            .ThenInclude(p => p.Stocks.Where(s => s.OrderSelectionId == null))
+            .SingleOrDefaultAsync(o => o.Id == notification.OrderId, cancellationToken);
+
+        if (order == null)
+            return;
+
+        var enoughStocks = order.OrderSelections.All(os => os.Product.Stocks.Count >= os.Quantity);
+        if (enoughStocks)
+            await ProcessOrder(order);
+    }
+
+    private async Task ProcessOrder(E.Order order)
+    {
+        order.Status = OrderStatus.Processing;
+        foreach (var selection in order.OrderSelections)
+        {
+            selection.Stocks = selection.Product.Stocks.Take(selection.Quantity).ToList();
+        }
+
+        await _orderSelectionRepository.UpdateManyAsync(order.OrderSelections);
+        await _orderRepository.UpdateAsync(order);
+    }
+}

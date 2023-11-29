@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Storage.BLL.Responses.Product;
-using Storage.BLL.Responses.ProductReservation;
 using Storage.BLL.Responses.Stock;
 using Storage.DAL.Entities;
 
@@ -10,7 +9,6 @@ public class ProductToProductResponseAction : IMappingAction<Product, ProductRes
 {
     public void Process(Product source, ProductResponse destination, ResolutionContext context)
     {
-        destination.Stocks = context.Mapper.Map<ICollection<StockResponse>>(source.Stocks);
-        destination.ProductReservations = context.Mapper.Map<ICollection<ProductReservationResponse>>(source.ProductReservations);
+        destination.Stocks = context.Mapper.Map<List<StockResponse>>(source.Stocks);
     }
 }

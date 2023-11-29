@@ -2,8 +2,10 @@
 using ErrorOr;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
+using Storage.BLL.Extensions;
 using Storage.BLL.Requests.Auth;
 using Storage.BLL.Responses.Auth;
+using Storage.Common.Constants;
 using Storage.Common.Models.Configs;
 using Storage.DAL.Entities;
 
@@ -33,6 +35,10 @@ public class SignUpRequestHandler : AuthRequestHandlerBase<SignUpRequest>
         var createdUser = await UserManager.CreateAsync(user, request.Password);
         if (!createdUser.Succeeded)
             return Error.Failure("Unable to create a user. Please try again later or use another email address");
+
+        var roleAdded = await UserManager.SetRoleAsync(user, ApplicationRoles.User);
+        if (!roleAdded.Succeeded)
+            return Error.Failure("Unable to create a user. Please try again later");
 
         return await GenerateAuthResultAsync(user);
     }

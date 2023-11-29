@@ -8,5 +8,5 @@ public class GetProductsRequest : IRequestBase<List<ProductResponse>>
 {
     public ProductType ProductType { get; set; }
     public string? Name { get; set; } = string.Empty;
-    public bool ShouldBeAvailable { get; set; }
+    public bool? IsAvailable { get; set; }
 }

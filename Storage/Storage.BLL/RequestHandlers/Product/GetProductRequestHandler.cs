@@ -29,8 +29,7 @@ public class GetProductRequestHandler : RequestHandlerBase<GetProductsRequest, L
         CancellationToken cancellationToken)
     {
         IQueryable<E.Product> queryable = _repository
-            .Include(p => p.Stocks)
-            .Include(p => p.ProductReservations);
+            .Include(p => p.Stocks.Where(s => s.OrderSelectionId == null));
 
         if (request.ProductType != ProductType.None)
             queryable = queryable.Where(p => p.Type == request.ProductType);
@@ -38,8 +37,12 @@ public class GetProductRequestHandler : RequestHandlerBase<GetProductsRequest, L
         if (!string.IsNullOrEmpty(request.Name))
             queryable = queryable.Where(p => p.Name.Contains(request.Name));
 
-        if (request.ShouldBeAvailable)
-            queryable = queryable.Where(p => p.Stocks.Count > 0);
+        if (request.IsAvailable != null)
+        {
+            queryable = request.IsAvailable.Value
+                ? queryable.Where(p => p.Stocks.Count > 0)
+                : queryable.Where(p => p.Stocks.Count == 0);
+        }
 
         return _mapper.Map<List<ProductResponse>>(await queryable.ToListAsync(cancellationToken));
     }

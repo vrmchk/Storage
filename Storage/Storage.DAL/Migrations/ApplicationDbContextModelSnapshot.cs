@@ -227,28 +227,6 @@ namespace Storage.DAL.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("Storage.DAL.Entities.ProductReservation", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("ProductReservations");
-                });
-
             modelBuilder.Entity("Storage.DAL.Entities.Stock", b =>
                 {
                     b.Property<Guid>("Id")
@@ -430,17 +408,6 @@ namespace Storage.DAL.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("Storage.DAL.Entities.ProductReservation", b =>
-                {
-                    b.HasOne("Storage.DAL.Entities.Product", "Product")
-                        .WithMany("ProductReservations")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("Storage.DAL.Entities.Stock", b =>
                 {
                     b.HasOne("Storage.DAL.Entities.OrderSelection", "OrderSelection")
@@ -470,8 +437,6 @@ namespace Storage.DAL.Migrations
 
             modelBuilder.Entity("Storage.DAL.Entities.Product", b =>
                 {
-                    b.Navigation("ProductReservations");
-
                     b.Navigation("Stocks");
                 });
 #pragma warning restore 612, 618

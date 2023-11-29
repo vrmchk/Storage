@@ -26,7 +26,7 @@ public class UpdateProductRequestHandler : RequestHandlerBase<UpdateProductReque
     protected override async Task<ErrorOr<ProductResponse>> HandleInternal(UpdateProductRequest request,
         CancellationToken cancellationToken)
     {
-        var product = await _repository.SingleOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
+        var product = await _repository.SingleOrDefaultAsync(p => p.Id == request.ProductId, cancellationToken);
         if (product == null)
             return Error.NotFound("Product with this id does not exist");
 

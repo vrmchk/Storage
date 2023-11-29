@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Storage.BLL.Requests.Stock;
 using Storage.BLL.Responses.Stock;
+using Storage.Common.Constants;
 using Storage.Common.Models.DTOs;
 using Storage.Common.Models.DTOs.Stock;
 using Storage.WebAPI.Extensions;
@@ -11,6 +14,7 @@ namespace Storage.WebAPI.Controllers;
 
 [ApiController]
 [Route("api")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = ApplicationRoles.Manager)]
 public class StockController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -23,43 +27,44 @@ public class StockController : ControllerBase
     }
 
     [HttpGet("products/{productId}/stocks")]
-    public async Task<IActionResult> GetStocksByProductId(Guid productId)
+    public async Task<IActionResult> GetStocksByProductId(Guid productId, [FromQuery] bool? isAvailable = null)
     {
-        var result = await _mediator.Send(new GetStocksRequest { ProductId = productId });
+        var result = await _mediator.Send(new GetStocksRequest
+        {
+            ProductId = productId,
+            IsAvailable = isAvailable
+        });
         return _mapper.ToActionResult<List<StockResponse>, List<StockDTO>>(result);
     }
 
-    [HttpGet("/stocks/{stockId}")]
-    public async Task<IActionResult> GetStockById(Guid stockId)
+    [HttpGet("/stocks/{id}")]
+    public async Task<IActionResult> GetStockById(Guid id)
     {
-        var result = await _mediator.Send(new GetStockByIdRequest { Id = stockId });
+        var result = await _mediator.Send(new GetStockByIdRequest { Id = id });
         return _mapper.ToActionResult<StockResponse, StockDTO>(result);
     }
 
-    [HttpPost("/stocks")]
-    public async Task<IActionResult> AddStock([FromBody] CreateStockDTO dto)
+    [HttpPost("/stocks/batch")]
+    public async Task<IActionResult> AddStock([FromBody] CreateStocksBatchDTO dto)
     {
-        var result = await _mediator.Send(_mapper.Map<CreateStockRequest>(dto));
-        return result.Match<IActionResult>(
-            stock => CreatedAtAction(nameof(GetStockById), new { stockId = stock.Id }, stock),
-            error => BadRequest(error.ToErrorDTO())
-        );
+        var result = await _mediator.Send(_mapper.Map<CreateStocksBatchRequest>(dto));
+        return _mapper.ToActionResult<List<StockResponse>, List<StockDTO>>(result);
     }
 
-    [HttpPut("/stocks/{stockId}")]
-    public async Task<IActionResult> UpdateStock(Guid stockId, [FromBody] UpdateStockDTO dto)
+    [HttpPut("/stocks/{id}")]
+    public async Task<IActionResult> UpdateStock(Guid id, [FromBody] UpdateStockDTO dto)
     {
-        if (stockId != dto.Id)
+        if (id != dto.Id)
             return BadRequest(new ErrorDTO { Errors = new[] { "Ids have to be the same in route and body" } });
 
         var result = await _mediator.Send(_mapper.Map<UpdateStockRequest>(dto));
         return _mapper.ToActionResult<StockResponse, StockDTO>(result);
     }
 
-    [HttpDelete("/stocks/{stockId}")]
-    public async Task<IActionResult> DeleteStock(Guid stockId)
+    [HttpDelete("/stocks/{id}")]
+    public async Task<IActionResult> DeleteStock(Guid id)
     {
-        var result = await _mediator.Send(new DeleteStockRequest { Id = stockId });
+        var result = await _mediator.Send(new DeleteStockRequest { Id = id });
         return result.ToActionResult();
     }
 }

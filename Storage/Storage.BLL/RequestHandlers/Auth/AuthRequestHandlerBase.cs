@@ -5,6 +5,7 @@ using ErrorOr;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using Storage.BLL.Extensions;
 using Storage.BLL.RequestHandlers.Abstractions;
 using Storage.BLL.Requests.Abstractions;
 using Storage.BLL.Responses.Auth;
@@ -30,27 +31,32 @@ public abstract class AuthRequestHandlerBase<TRequest> : RequestHandlerBase<TReq
     protected async Task<ErrorOr<AuthSuccessResponse>> GenerateAuthResultAsync(User user)
     {
         var result = await GenerateRefreshTokenAsync(user);
-        return result.Match<ErrorOr<AuthSuccessResponse>>(refreshToken => new AuthSuccessResponse
+        return await result.Match<Task<ErrorOr<AuthSuccessResponse>>>(async refreshToken => new AuthSuccessResponse
             {
-                AccessToken = GenerateJwtToken(user),
+                AccessToken = await GenerateJwtToken(user),
                 RefreshToken = refreshToken
             },
-            error => error);
+            error => Task.FromResult<ErrorOr<AuthSuccessResponse>>(error));
     }
 
-    private string GenerateJwtToken(User user)
+    private async Task<string> GenerateJwtToken(User user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_jwtConfig.Secret);
+        var claims = new List<Claim>
+        {
+            new Claim("id", user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email!),
+            new Claim(JwtRegisteredClaimNames.Sub, user.Email!),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
+
+        var result = await UserManager.GetRoleAsync(user);
+        result.Switch(role => claims.Add(new Claim(ClaimTypes.Role, role)), _ => { });
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new[]
-            {
-                new Claim("id", user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email!),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            }),
+            Subject = new ClaimsIdentity(claims),
             Expires = DateTime.UtcNow.Add(_jwtConfig.AccessTokenLifetime),
             SigningCredentials =
                 new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),

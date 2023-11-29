@@ -13,5 +13,4 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<Guid>, 
     public virtual DbSet<Order> Orders { get; set; } = null!;
     public virtual DbSet<OrderSelection> OrderSelections { get; set; } = null!;
     public virtual DbSet<Stock> Stocks { get; set; } = null!;
-    public virtual DbSet<ProductReservation> ProductReservations { get; set; } = null!;
 }

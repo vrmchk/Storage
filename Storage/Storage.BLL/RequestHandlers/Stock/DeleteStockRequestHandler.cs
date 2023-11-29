@@ -10,7 +10,7 @@ namespace Storage.BLL.RequestHandlers.Stock;
 
 public class DeleteStockRequestHandler : RequestHandlerBase<DeleteStockRequest, Deleted>
 {
-    private readonly IRepository<E.Stock> _repository;    
+    private readonly IRepository<E.Stock> _repository;
 
     public DeleteStockRequestHandler(IValidator<DeleteStockRequest> validator, IRepository<E.Stock> repository)
         : base(validator)
@@ -18,12 +18,16 @@ public class DeleteStockRequestHandler : RequestHandlerBase<DeleteStockRequest, 
         _repository = repository;
     }
 
-    protected override async Task<ErrorOr<Deleted>> HandleInternal(DeleteStockRequest request, CancellationToken cancellationToken)
+    protected override async Task<ErrorOr<Deleted>> HandleInternal(DeleteStockRequest request,
+        CancellationToken cancellationToken)
     {
         var stock = await _repository.SingleOrDefaultAsync(s => s.Id == request.Id, cancellationToken);
         if (stock == null)
             return Error.NotFound("Stock with this id does not exist");
-        
+
+        if (stock.OrderSelectionId != null)
+            return Error.Failure("Unable to delete released stock");
+
         await _repository.DeleteAsync(stock);
         return Result.Deleted;
     }

@@ -6,4 +6,5 @@ namespace Storage.BLL.Requests.Stock;
 public class GetStocksRequest : IRequestBase<List<StockResponse>>
 {
     public Guid ProductId { get; set; }
+    public bool? IsAvailable { get; set; }
 }

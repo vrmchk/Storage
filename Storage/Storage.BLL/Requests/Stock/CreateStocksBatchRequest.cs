@@ -3,7 +3,8 @@ using Storage.BLL.Responses.Stock;
 
 namespace Storage.BLL.Requests.Stock;
 
-public class CreateStockRequest : IRequestBase<StockResponse>
+public class CreateStocksBatchRequest : IRequestBase<List<StockResponse>>
 {
     public Guid ProductId { get; set; }
+    public int Quantity { get; set; }
 }

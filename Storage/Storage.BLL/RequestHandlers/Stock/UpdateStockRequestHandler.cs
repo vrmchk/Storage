@@ -30,6 +30,9 @@ public class UpdateStockRequestHandler : RequestHandlerBase<UpdateStockRequest, 
         if (stock == null)
             return Error.NotFound("Stock with this id does not exist");
 
+        if (stock.OrderSelectionId != null && stock.OrderSelectionId != request.OrderSelectionId)
+            return Error.Failure("Unable to change order selection for this stock");
+
         stock = _mapper.Map(request, stock);
         await _repository.UpdateAsync(stock);
 
