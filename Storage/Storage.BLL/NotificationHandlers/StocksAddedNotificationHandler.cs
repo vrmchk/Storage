@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Storage.BLL.Notifications;
 using Storage.Common.Enums;
 using Storage.DAL.Repositories.Interfaces;
-using Storage.Email.Models;
-using Storage.Email.Services.Interfaces;
 using E = Storage.DAL.Entities;
 
 namespace Storage.BLL.NotificationHandlers;
@@ -13,15 +11,15 @@ public class StocksAddedNotificationHandler : INotificationHandler<StocksAddedNo
 {
     private readonly IRepository<E.Order> _orderRepository;
     private readonly IRepository<E.OrderSelection> _orderSelectionRepository;
-    private readonly IEmailSender _emailSender;
+    private readonly IMediator _mediator;
 
     public StocksAddedNotificationHandler(IRepository<E.Order> orderRepository,
         IRepository<E.OrderSelection> orderSelectionRepository, 
-        IEmailSender emailSender)
+        IMediator mediator)
     {
         _orderRepository = orderRepository;
         _orderSelectionRepository = orderSelectionRepository;
-        _emailSender = emailSender;
+        _mediator = mediator;
     }
 
     public async Task Handle(StocksAddedNotification notification, CancellationToken cancellationToken)
@@ -58,10 +56,6 @@ public class StocksAddedNotificationHandler : INotificationHandler<StocksAddedNo
 
         await _orderSelectionRepository.UpdateManyAsync(order.OrderSelections);
         await _orderRepository.UpdateAsync(order);
-        await _emailSender.SendEmailAsync(order.User.Email!, new OrderProcessingMessage
-        {
-            UserName = order.User.DisplayName,
-            OrderId = order.Id.ToString()
-        });
+        await _mediator.Publish(new OrderProcessingNotification { OrderId = order.Id });
     }
 }

@@ -11,12 +11,15 @@ public class OrderCreatedNotificationHandler : INotificationHandler<OrderCreated
 {
     private readonly IRepository<E.Order> _orderRepository;
     private readonly IRepository<E.OrderSelection> _orderSelectionRepository;
+    private readonly IMediator _mediator;
 
     public OrderCreatedNotificationHandler(IRepository<E.Order> orderRepository,
-        IRepository<E.OrderSelection> orderSelectionRepository)
+        IRepository<E.OrderSelection> orderSelectionRepository,
+        IMediator mediator)
     {
         _orderRepository = orderRepository;
         _orderSelectionRepository = orderSelectionRepository;
+        _mediator = mediator;
     }
 
     public async Task Handle(OrderCreatedNotification notification, CancellationToken cancellationToken)
@@ -45,5 +48,6 @@ public class OrderCreatedNotificationHandler : INotificationHandler<OrderCreated
 
         await _orderSelectionRepository.UpdateManyAsync(order.OrderSelections);
         await _orderRepository.UpdateAsync(order);
+        await _mediator.Publish(new OrderProcessingNotification { OrderId = order.Id });
     }
 }
