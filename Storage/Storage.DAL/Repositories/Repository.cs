@@ -44,10 +44,11 @@ public class Repository<TEntity> : IRepository<TEntity>
         return _table.FromSqlInterpolated(sql);
     }
 
-    public async Task<bool> InsertAsync(TEntity entity, bool persist = true)
+    public async Task<bool> InsertAsync(TEntity entity,
+        CancellationToken cancellationToken = new(), bool persist = true)
     {
-        await _table.AddAsync(entity);
-        return persist && await SaveChangesAsync() > 0;
+        await _table.AddAsync(entity, cancellationToken);
+        return persist && await SaveChangesAsync(cancellationToken) > 0;
     }
 
     public bool Insert(TEntity entity, bool persist = true)
@@ -56,10 +57,11 @@ public class Repository<TEntity> : IRepository<TEntity>
         return persist && SaveChanges() > 0;
     }
 
-    public async Task<bool> InsertManyAsync(IEnumerable<TEntity> entities, bool persist = true)
+    public async Task<bool> InsertManyAsync(IEnumerable<TEntity> entities,
+        CancellationToken cancellationToken = new(), bool persist = true)
     {
-        await _table.AddRangeAsync(entities);
-        return persist && await SaveChangesAsync() > 0;
+        await _table.AddRangeAsync(entities, cancellationToken);
+        return persist && await SaveChangesAsync(cancellationToken) > 0;
     }
 
     public bool InsertMany(IEnumerable<TEntity> entities, bool persist = true)
@@ -68,10 +70,11 @@ public class Repository<TEntity> : IRepository<TEntity>
         return persist && SaveChanges() > 0;
     }
 
-    public async Task<bool> UpdateAsync(TEntity entity, bool persist = true)
+    public async Task<bool> UpdateAsync(TEntity entity,
+        CancellationToken cancellationToken = new(), bool persist = true)
     {
         _table.Update(entity);
-        return persist && await SaveChangesAsync() > 0;
+        return persist && await SaveChangesAsync(cancellationToken) > 0;
     }
 
     public bool Update(TEntity entity, bool persist = true)
@@ -80,10 +83,11 @@ public class Repository<TEntity> : IRepository<TEntity>
         return persist && SaveChanges() > 0;
     }
 
-    public async Task<bool> UpdateManyAsync(IEnumerable<TEntity> entities, bool persist = true)
+    public async Task<bool> UpdateManyAsync(IEnumerable<TEntity> entities,
+        CancellationToken cancellationToken = new(), bool persist = true)
     {
         _table.UpdateRange(entities);
-        return persist && await SaveChangesAsync() > 0;
+        return persist && await SaveChangesAsync(cancellationToken) > 0;
     }
 
     public bool UpdateMany(IEnumerable<TEntity> entities, bool persist = true)
@@ -92,10 +96,11 @@ public class Repository<TEntity> : IRepository<TEntity>
         return persist && SaveChanges() > 0;
     }
 
-    public async Task<bool> DeleteAsync(TEntity entity, bool persist = true)
+    public async Task<bool> DeleteAsync(TEntity entity,
+        CancellationToken cancellationToken = new(), bool persist = true)
     {
         _table.Remove(entity);
-        return persist && await SaveChangesAsync() > 0;
+        return persist && await SaveChangesAsync(cancellationToken) > 0;
     }
 
     public bool Delete(TEntity entity, bool persist = true)
@@ -104,10 +109,11 @@ public class Repository<TEntity> : IRepository<TEntity>
         return persist && SaveChanges() > 0;
     }
 
-    public async Task<bool> DeleteManyAsync(IEnumerable<TEntity> entities, bool persist = true)
+    public async Task<bool> DeleteManyAsync(IEnumerable<TEntity> entities,
+        CancellationToken cancellationToken = new(), bool persist = true)
     {
         _table.RemoveRange(entities);
-        return persist && await SaveChangesAsync() > 0;
+        return persist && await SaveChangesAsync(cancellationToken) > 0;
     }
 
     public bool DeleteMany(IEnumerable<TEntity> entities, bool persist = true)
@@ -116,9 +122,9 @@ public class Repository<TEntity> : IRepository<TEntity>
         return persist && SaveChanges() > 0;
     }
 
-    public async Task<int> SaveChangesAsync()
+    public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
     {
-        return await _context.SaveChangesAsync();
+        return await _context.SaveChangesAsync(cancellationToken);
     }
 
     public int SaveChanges()

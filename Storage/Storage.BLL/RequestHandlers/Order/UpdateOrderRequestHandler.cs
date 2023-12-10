@@ -33,7 +33,7 @@ public class UpdateOrderRequestHandler : RequestHandlerBase<UpdateOrderRequest, 
 
         _mapper.Map(request, order);
 
-        await _repository.UpdateAsync(order);
+        await _repository.UpdateAsync(order, cancellationToken);
 
         return _mapper.Map<OrderResponse>(order);
     }

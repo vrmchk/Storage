@@ -35,7 +35,7 @@ public class CreateStocksBatchRequestHandler : RequestHandlerBase<CreateStocksBa
             ProductId = request.ProductId
         }).ToList();
 
-        await _repository.InsertManyAsync(stocks);
+        await _repository.InsertManyAsync(stocks, cancellationToken);
 
         var notification = new StocksAddedNotification { ProductId = request.ProductId };
         await _mediator.Publish(notification, cancellationToken);

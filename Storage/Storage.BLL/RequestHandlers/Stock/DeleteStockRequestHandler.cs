@@ -28,7 +28,7 @@ public class DeleteStockRequestHandler : RequestHandlerBase<DeleteStockRequest, 
         if (stock.OrderSelectionId != null)
             return Error.Failure("Unable to delete released stock");
 
-        await _repository.DeleteAsync(stock);
+        await _repository.DeleteAsync(stock, cancellationToken);
         return Result.Deleted;
     }
 }

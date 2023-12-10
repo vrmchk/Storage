@@ -35,10 +35,10 @@ public class OrderCreatedNotificationHandler : INotificationHandler<OrderCreated
 
         var enoughStocks = order.OrderSelections.All(os => os.Product.Stocks.Count >= os.Quantity);
         if (enoughStocks)
-            await ProcessOrder(order);
+            await ProcessOrder(order, cancellationToken);
     }
 
-    private async Task ProcessOrder(E.Order order)
+    private async Task ProcessOrder(E.Order order, CancellationToken cancellationToken)
     {
         order.Status = OrderStatus.Processing;
         foreach (var selection in order.OrderSelections)
@@ -46,8 +46,8 @@ public class OrderCreatedNotificationHandler : INotificationHandler<OrderCreated
             selection.Stocks = selection.Product.Stocks.Take(selection.Quantity).ToList();
         }
 
-        await _orderSelectionRepository.UpdateManyAsync(order.OrderSelections);
-        await _orderRepository.UpdateAsync(order);
-        await _mediator.Publish(new OrderProcessingNotification { OrderId = order.Id });
+        await _orderSelectionRepository.UpdateManyAsync(order.OrderSelections, cancellationToken);
+        await _orderRepository.UpdateAsync(order, cancellationToken);
+        await _mediator.Publish(new OrderProcessingNotification { OrderId = order.Id }, cancellationToken);
     }
 }

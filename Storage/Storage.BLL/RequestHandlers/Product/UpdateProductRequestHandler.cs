@@ -31,7 +31,7 @@ public class UpdateProductRequestHandler : RequestHandlerBase<UpdateProductReque
             return Error.NotFound("Product with this id does not exist");
 
         _mapper.Map(request, product);
-        await _repository.UpdateAsync(product);
+        await _repository.UpdateAsync(product, cancellationToken);
 
         return _mapper.Map<ProductResponse>(product);
     }

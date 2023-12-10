@@ -56,7 +56,7 @@ public class CreateOrderRequestHandler : RequestHandlerBase<CreateOrderRequest, 
         order.Status = OrderStatus.Created;
         order.Amount = selectionsWithProducts.Sum(x => x.Product.Price * x.Selection.Quantity);
 
-        await _repository.InsertAsync(order);
+        await _repository.InsertAsync(order, cancellationToken);
 
         await _mediator.Publish(new OrderCreatedNotification { OrderId = order.Id }, cancellationToken);
         

@@ -26,7 +26,7 @@ public class DeleteOrderRequestHandler : RequestHandlerBase<DeleteOrderRequest, 
         if (order == null)
             return Error.NotFound("Order with this id does not exist");
 
-        await _repository.DeleteAsync(order);
+        await _repository.DeleteAsync(order, cancellationToken);
 
         return Result.Deleted;
     }

@@ -26,7 +26,7 @@ public class CreateProductRequestHandler : RequestHandlerBase<CreateProductReque
         CancellationToken cancellationToken)
     {
         var product = _mapper.Map<E.Product>(request);
-        await _repository.InsertAsync(product);
+        await _repository.InsertAsync(product, cancellationToken);
         return _mapper.Map<ProductResponse>(product);
     }
 }

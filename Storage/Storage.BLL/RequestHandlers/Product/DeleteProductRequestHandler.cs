@@ -26,7 +26,7 @@ public class DeleteProductRequestHandler : RequestHandlerBase<DeleteProductReque
         if (product == null)
             return Error.NotFound("Product with this id does not exist");
 
-        await _repository.DeleteAsync(product);
+        await _repository.DeleteAsync(product, cancellationToken);
         return Result.Deleted;
     }
 }
