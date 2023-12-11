@@ -5,10 +5,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Storage.BLL.Extensions;
 using Storage.BLL.Requests.Product;
+using Storage.BLL.Requests.Stock;
 using Storage.BLL.Responses.Product;
+using Storage.BLL.Responses.Stock;
 using Storage.Common.Constants;
 using Storage.Common.Enums;
 using Storage.Common.Models.DTOs.Product;
+using Storage.Common.Models.DTOs.Stock;
 using Storage.WebAPI.Extensions;
 
 namespace Storage.WebAPI.Controllers;
@@ -79,5 +82,17 @@ public class ProductController : ControllerBase
     {
         var result = await _mediator.Send(new DeleteProductRequest { Id = id });
         return result.ToActionResult();
+    }
+
+    [HttpGet("{id}/stocks")]
+    [Authorize(Roles = ApplicationRoles.Manager)]
+    public async Task<IActionResult> GetStocksByProductId(Guid productId, [FromQuery] bool? isAvailable = null)
+    {
+        var result = await _mediator.Send(new GetStocksRequest
+        {
+            ProductId = productId,
+            IsAvailable = isAvailable
+        });
+        return _mapper.ToActionResult<List<StockResponse>, List<StockDTO>>(result);
     }
 }
