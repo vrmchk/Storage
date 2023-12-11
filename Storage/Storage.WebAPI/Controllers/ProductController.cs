@@ -8,7 +8,6 @@ using Storage.BLL.Requests.Product;
 using Storage.BLL.Responses.Product;
 using Storage.Common.Constants;
 using Storage.Common.Enums;
-using Storage.Common.Models.DTOs;
 using Storage.Common.Models.DTOs.Product;
 using Storage.WebAPI.Extensions;
 

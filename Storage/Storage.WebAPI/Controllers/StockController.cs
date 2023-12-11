@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Storage.BLL.Requests.Stock;
 using Storage.BLL.Responses.Stock;
 using Storage.Common.Constants;
-using Storage.Common.Models.DTOs;
 using Storage.Common.Models.DTOs.Stock;
 using Storage.WebAPI.Extensions;
 
@@ -37,21 +36,21 @@ public class StockController : ControllerBase
         return _mapper.ToActionResult<List<StockResponse>, List<StockDTO>>(result);
     }
 
-    [HttpGet("/stocks/{id}")]
+    [HttpGet("stocks/{id}")]
     public async Task<IActionResult> GetStockById(Guid id)
     {
         var result = await _mediator.Send(new GetStockByIdRequest { Id = id });
         return _mapper.ToActionResult<StockResponse, StockDTO>(result);
     }
 
-    [HttpPost("/stocks/batch")]
+    [HttpPost("stocks/batch")]
     public async Task<IActionResult> AddStock([FromBody] CreateStocksBatchDTO dto)
     {
         var result = await _mediator.Send(_mapper.Map<CreateStocksBatchRequest>(dto));
         return _mapper.ToActionResult<List<StockResponse>, List<StockDTO>>(result);
     }
 
-    [HttpDelete("/stocks/{id}")]
+    [HttpDelete("stocks/{id}")]
     public async Task<IActionResult> DeleteStock(Guid id)
     {
         var result = await _mediator.Send(new DeleteStockRequest { Id = id });
