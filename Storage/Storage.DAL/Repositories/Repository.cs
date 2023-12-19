@@ -1,0 +1,134 @@
+﻿using System.Collections;
+using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
+using Storage.DAL.Contexts;
+using Storage.DAL.Repositories.Interfaces;
+
+namespace Storage.DAL.Repositories;
+
+public class Repository<TEntity> : IRepository<TEntity>
+    where TEntity : class
+{
+    private readonly ApplicationDbContext _context;
+    private readonly DbSet<TEntity> _table;
+
+    public Repository(ApplicationDbContext context)
+    {
+        _context = context;
+        _table = _context.Set<TEntity>();
+    }
+
+    public Type ElementType => ((IQueryable<TEntity>)_table).ElementType;
+
+    public Expression Expression => ((IQueryable<TEntity>)_table).Expression;
+
+    public IQueryProvider Provider => ((IQueryable<TEntity>)_table).Provider;
+
+    public IEnumerator<TEntity> GetEnumerator()
+    {
+        return ((IEnumerable<TEntity>)_table).GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    public IAsyncEnumerator<TEntity> GetAsyncEnumerator(CancellationToken cancellationToken = new())
+    {
+        return ((IAsyncEnumerable<TEntity>)_table).GetAsyncEnumerator(cancellationToken);
+    }
+
+    public IQueryable<TEntity> FromSqlInterpolated(FormattableString sql)
+    {
+        return _table.FromSqlInterpolated(sql);
+    }
+
+    public async Task<bool> InsertAsync(TEntity entity,
+        CancellationToken cancellationToken = new(), bool persist = true)
+    {
+        await _table.AddAsync(entity, cancellationToken);
+        return persist && await SaveChangesAsync(cancellationToken) > 0;
+    }
+
+    public bool Insert(TEntity entity, bool persist = true)
+    {
+        _table.Add(entity);
+        return persist && SaveChanges() > 0;
+    }
+
+    public async Task<bool> InsertManyAsync(IEnumerable<TEntity> entities,
+        CancellationToken cancellationToken = new(), bool persist = true)
+    {
+        await _table.AddRangeAsync(entities, cancellationToken);
+        return persist && await SaveChangesAsync(cancellationToken) > 0;
+    }
+
+    public bool InsertMany(IEnumerable<TEntity> entities, bool persist = true)
+    {
+        _table.AddRange(entities);
+        return persist && SaveChanges() > 0;
+    }
+
+    public async Task<bool> UpdateAsync(TEntity entity,
+        CancellationToken cancellationToken = new(), bool persist = true)
+    {
+        _table.Update(entity);
+        return persist && await SaveChangesAsync(cancellationToken) > 0;
+    }
+
+    public bool Update(TEntity entity, bool persist = true)
+    {
+        _table.Update(entity);
+        return persist && SaveChanges() > 0;
+    }
+
+    public async Task<bool> UpdateManyAsync(IEnumerable<TEntity> entities,
+        CancellationToken cancellationToken = new(), bool persist = true)
+    {
+        _table.UpdateRange(entities);
+        return persist && await SaveChangesAsync(cancellationToken) > 0;
+    }
+
+    public bool UpdateMany(IEnumerable<TEntity> entities, bool persist = true)
+    {
+        _table.UpdateRange(entities);
+        return persist && SaveChanges() > 0;
+    }
+
+    public async Task<bool> DeleteAsync(TEntity entity,
+        CancellationToken cancellationToken = new(), bool persist = true)
+    {
+        _table.Remove(entity);
+        return persist && await SaveChangesAsync(cancellationToken) > 0;
+    }
+
+    public bool Delete(TEntity entity, bool persist = true)
+    {
+        _table.Remove(entity);
+        return persist && SaveChanges() > 0;
+    }
+
+    public async Task<bool> DeleteManyAsync(IEnumerable<TEntity> entities,
+        CancellationToken cancellationToken = new(), bool persist = true)
+    {
+        _table.RemoveRange(entities);
+        return persist && await SaveChangesAsync(cancellationToken) > 0;
+    }
+
+    public bool DeleteMany(IEnumerable<TEntity> entities, bool persist = true)
+    {
+        _table.RemoveRange(entities);
+        return persist && SaveChanges() > 0;
+    }
+
+    public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
+    {
+        return await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public int SaveChanges()
+    {
+        return _context.SaveChanges();
+    }
+}
